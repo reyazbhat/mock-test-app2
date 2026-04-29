@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Test {
+  id              String     @id @default(cuid())
+  title           String
+  description     String     @default("")
+  category        String     @default("JKSSB")
+  isFree          Boolean    @default(true)
+  price           Int        @default(0)
+  originalPrice   Int        @default(0)
+  durationMinutes Int
+  thumbnail       String?
+  createdAt       DateTime   @default(now())
+  questions       Question[]
+  purchases       Purchase[]
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  testId        String
+  test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  text          String
+  options       String   // Will store stringified JSON array
+  correctAnswer String
+  createdAt     DateTime @default(now())
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String?
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  purchases Purchase[]
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String
+  testId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, testId])
+}
