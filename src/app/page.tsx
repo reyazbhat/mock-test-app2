@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  let tests = [];
+  let tests: any[] = [];
   try {
     tests = await prisma.test.findMany({
       orderBy: { createdAt: 'desc' },
