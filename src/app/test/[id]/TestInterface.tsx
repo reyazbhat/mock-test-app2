@@ -73,10 +73,10 @@ export default function TestInterface({ test }: { test: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--bg-color)' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
         <h2 style={{ margin: 0, color: 'var(--primary)' }}>{test.title}</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: timeLeft <= 60 ? 'var(--danger)' : 'var(--text-primary)' }}>
+        <div className="test-header-controls" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: timeLeft <= 60 ? 'var(--accent)' : 'var(--text-main)' }}>
             ⏱ {formatTime(timeLeft)}
           </div>
           <button onClick={handleSubmit} className="btn btn-primary">
@@ -85,7 +85,7 @@ export default function TestInterface({ test }: { test: any }) {
         </div>
       </header>
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="test-layout">
         {/* Main Content */}
         <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
           <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -146,7 +146,7 @@ export default function TestInterface({ test }: { test: any }) {
         </main>
 
         {/* Sidebar */}
-        <aside style={{ width: '300px', backgroundColor: 'var(--card-bg)', borderLeft: '1px solid var(--border-color)', padding: '2rem', overflowY: 'auto' }}>
+        <aside className="test-sidebar">
           <h3 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Question Palette</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
             {test.questions.map((_: any, idx: number) => (

@@ -66,6 +66,19 @@ export default async function TestDetailsPage({ params }: { params: Promise<{ id
           <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--text-main)' }}>
             {test.title}
           </h1>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              📁 {test.category}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              ⏱️ {test.durationMinutes} mins
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              📝 {test._count.questions} Qs
+            </span>
+          </div>
+
           <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
             Price: <strong style={{ color: test.isFree ? 'var(--success)' : 'var(--text-main)' }}>
               {test.isFree ? 'Free' : `₹${test.price}`}
@@ -73,12 +86,9 @@ export default async function TestDetailsPage({ params }: { params: Promise<{ id
           </p>
 
           {!session ? (
-            <div style={{ marginBottom: '2rem' }}>
-              <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>You must be logged in to access this test.</p>
-              <Link href="/login" className="btn btn-outline" style={{ display: 'inline-block', minWidth: '200px' }}>
-                Login to Continue
-              </Link>
-            </div>
+            <Link href={`/login?callbackUrl=/test-details/${test.id}`} className="btn btn-primary" style={{ fontSize: '1.25rem', padding: '1rem 2rem', maxWidth: '300px', display: 'inline-block', marginBottom: '2rem' }}>
+              Login to Start Test
+            </Link>
           ) : isUnlocked ? (
             <Link href={`/test/${test.id}`} className="btn btn-success" style={{ fontSize: '1.25rem', padding: '1rem 2rem', maxWidth: '300px', display: 'inline-block', marginBottom: '2rem' }}>
               Start Test Now →

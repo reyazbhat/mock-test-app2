@@ -50,7 +50,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const resolvedParams = await params;
     const testId = resolvedParams.id;
     const body = await request.json();
-    const { title, description, category, isFree, price, originalPrice, durationMinutes, thumbnail, questions } = body;
+    const { title, description, category, isFree, isPublished, price, originalPrice, durationMinutes, thumbnail, questions } = body;
 
     // Delete existing questions and recreate them (easiest way to handle updates to nested arrays)
     await prisma.question.deleteMany({
@@ -64,6 +64,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         description: description || '',
         category: category || 'JKSSB',
         isFree: isFree !== undefined ? isFree : true,
+        isPublished: isPublished !== undefined ? isPublished : true,
         price: parseInt(price) || 0,
         originalPrice: parseInt(originalPrice) || 0,
         durationMinutes: parseInt(durationMinutes),

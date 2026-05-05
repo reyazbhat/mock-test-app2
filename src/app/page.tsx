@@ -3,10 +3,13 @@ import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home() {
+export default async function Home(props: { searchParams: Promise<{ category?: string }> }) {
+  const searchParams = await props.searchParams;
+  const activeCategory = searchParams?.category || 'ALL';
   let tests: any[] = [];
   try {
     tests = await prisma.test.findMany({
+      where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
@@ -17,9 +20,15 @@ export default async function Home() {
   } catch (error) {
     console.error("PRISMA ERROR DETAILS:", error);
   }
+  const categories = ['ALL', ...Array.from(new Set(tests.map((t: any) => t.category)))];
+  
+  let displayTests = tests;
+  if (activeCategory !== 'ALL') {
+    displayTests = tests.filter((t: any) => t.category === activeCategory);
+  }
 
-  const freeTests = tests.filter((t: any) => t.isFree);
-  const paidTests = tests.filter((t: any) => !t.isFree);
+  const freeTests = displayTests.filter((t: any) => t.isFree);
+  const paidTests = displayTests.filter((t: any) => !t.isFree);
 
   const TestCard = ({ test }: { test: any }) => (
     <div key={test.id} className="card">
@@ -38,6 +47,18 @@ export default async function Home() {
         <p className="card-desc">
           {test.description ? test.description : `${test.category} Mock Test Series. Prepare Now!`}
         </p>
+        
+        <div style={{ display: 'flex', gap: '0.8rem', margin: '1rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            📁 {test.category}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            ⏱️ {test.durationMinutes} mins
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            📝 {test._count?.questions || 0} Qs
+          </span>
+        </div>
         
         {test.isFree ? (
           <div className="card-price">
@@ -71,6 +92,19 @@ export default async function Home() {
           <p style={{ color: 'var(--secondary)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '0.5rem' }}>TEST SERIES</p>
           <h1>All Mock Tests</h1>
           <p>Explore our complete collection of mock tests for JKSSB, SSC, UPSC, RRB, Banking, and all other competitive exams.</p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '2rem' }}>
+          {categories.map((cat: any) => (
+            <Link 
+              key={cat} 
+              href={cat === 'ALL' ? '/' : `/?category=${cat}`}
+              className={`btn ${activeCategory === cat ? 'btn-primary' : 'btn-outline'}`}
+              style={{ padding: '0.5rem 1rem', borderRadius: '20px', whiteSpace: 'nowrap' }}
+            >
+              {cat}
+            </Link>
+          ))}
         </div>
 
         {tests.length === 0 ? (

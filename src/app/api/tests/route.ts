@@ -19,7 +19,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, isFree, price, originalPrice, durationMinutes, thumbnail, questions } = body;
+    const { title, description, category, isFree, isPublished, price, originalPrice, durationMinutes, thumbnail, questions } = body;
 
     if (!title || !durationMinutes || !questions || !Array.isArray(questions)) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         description: description || '',
         category: category || 'JKSSB',
         isFree: isFree !== undefined ? isFree : true,
+        isPublished: isPublished !== undefined ? isPublished : true,
         price: parseInt(price) || 0,
         originalPrice: parseInt(originalPrice) || 0,
         durationMinutes: parseInt(durationMinutes),

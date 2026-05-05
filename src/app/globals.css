@@ -324,3 +324,41 @@ a {
   color: var(--success);
   font-weight: bold;
 }
+
+/* Test Attempt Responsive Layout */
+.test-layout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+}
+
+.test-sidebar {
+  width: 300px;
+  background-color: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .test-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .test-layout main {
+    overflow-y: visible !important;
+  }
+
+  .test-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  
+  .test-header-controls {
+    flex-direction: column;
+    gap: 1rem !important;
+  }
+}

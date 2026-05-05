@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import * as XLSX from 'xlsx';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function AdminPage() {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('JKSSB');
   const [isFree, setIsFree] = useState(true);
+  const [isPublished, setIsPublished] = useState(true);
   const [price, setPrice] = useState(0);
   const [originalPrice, setOriginalPrice] = useState(0);
   const [duration, setDuration] = useState(30);
@@ -56,6 +58,7 @@ export default function AdminPage() {
     setDescription(test.description);
     setCategory(test.category);
     setIsFree(test.isFree);
+    setIsPublished(test.isPublished !== undefined ? test.isPublished : true);
     setPrice(test.price);
     setOriginalPrice(test.originalPrice);
     setDuration(test.durationMinutes);
@@ -77,6 +80,7 @@ export default function AdminPage() {
     setDescription('');
     setCategory('JKSSB');
     setIsFree(true);
+    setIsPublished(true);
     setPrice(0);
     setOriginalPrice(0);
     setDuration(30);
@@ -86,6 +90,65 @@ export default function AdminPage() {
 
   const addQuestion = () => {
     setQuestions([...questions, { text: '', options: ['', '', '', ''], correctAnswer: '0' }]);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+        
+        // Map columns: Question | A | B | C | D | Answer
+        const newQuestions = data.map((row: any) => {
+          const options = [
+            row['A']?.toString() || '',
+            row['B']?.toString() || '',
+            row['C']?.toString() || '',
+            row['D']?.toString() || ''
+          ];
+          
+          let correctAnswerIndex = '0';
+          const answerVal = row['Answer']?.toString().toUpperCase();
+          if (answerVal === 'A') correctAnswerIndex = '0';
+          else if (answerVal === 'B') correctAnswerIndex = '1';
+          else if (answerVal === 'C') correctAnswerIndex = '2';
+          else if (answerVal === 'D') correctAnswerIndex = '3';
+          else if (['0','1','2','3'].includes(answerVal)) correctAnswerIndex = answerVal;
+          
+          return {
+            text: row['Question'] || '',
+            options,
+            correctAnswer: correctAnswerIndex
+          };
+        }).filter(q => q.text.trim() !== '');
+
+        if (newQuestions.length > 0) {
+          setQuestions(prev => {
+            if (prev.length === 1 && prev[0].text === '') {
+              return newQuestions;
+            }
+            return [...prev, ...newQuestions];
+          });
+          alert(`Successfully imported ${newQuestions.length} questions!`);
+        } else {
+          alert('No valid questions found. Please ensure columns are named: Question, A, B, C, D, Answer');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error parsing Excel file. Please check the format.');
+      }
+    };
+    reader.readAsBinaryString(file);
+    
+    // Reset file input
+    e.target.value = '';
   };
 
   const updateQuestion = (index: number, field: string, value: string) => {
@@ -121,6 +184,7 @@ export default function AdminPage() {
           description,
           category,
           isFree,
+          isPublished,
           price,
           originalPrice,
           durationMinutes: duration,
@@ -168,7 +232,10 @@ export default function AdminPage() {
             {existingTests.map(t => (
               <li key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--border)' }}>
                 <div>
-                  <h4 style={{ margin: 0, color: 'var(--text-main)' }}>{t.title}</h4>
+                  <h4 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {t.title}
+                    {!t.isPublished && <span className="badge" style={{ backgroundColor: 'var(--border)', color: 'var(--text-secondary)' }}>Draft</span>}
+                  </h4>
                   <small style={{ color: 'var(--text-secondary)' }}>{t.category} • {t.isFree ? 'Free' : `₹${t.price}`}</small>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -266,14 +333,25 @@ export default function AdminPage() {
           />
         </div>
 
-        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input 
-            type="checkbox" 
-            id="isFree"
-            checked={isFree} 
-            onChange={(e) => setIsFree(e.target.checked)} 
-          />
-          <label htmlFor="isFree" style={{ fontWeight: 'bold' }}>Is this a Free Test?</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
+            <input 
+              type="checkbox" 
+              id="isFree"
+              checked={isFree} 
+              onChange={(e) => setIsFree(e.target.checked)} 
+            />
+            <label htmlFor="isFree" style={{ fontWeight: 'bold' }}>Is this a Free Test?</label>
+          </div>
+          <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
+            <input 
+              type="checkbox" 
+              id="isPublished"
+              checked={isPublished} 
+              onChange={(e) => setIsPublished(e.target.checked)} 
+            />
+            <label htmlFor="isPublished" style={{ fontWeight: 'bold' }}>Publish Test?</label>
+          </div>
         </div>
 
         {!isFree && (
@@ -303,7 +381,23 @@ export default function AdminPage() {
 
         <hr style={{ margin: '2rem 0', borderColor: 'var(--border)', borderStyle: 'solid' }} />
 
-        <h3 style={{ marginBottom: '1.5rem' }}>Questions</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 style={{ margin: 0 }}>Questions ({questions.length})</h3>
+          <div>
+            <label className="btn btn-outline" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}>
+              <span>📊 Upload Excel</span>
+              <input 
+                type="file" 
+                accept=".xlsx, .xls" 
+                onChange={handleFileUpload} 
+                style={{ display: 'none' }} 
+              />
+            </label>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', textAlign: 'right' }}>
+              Columns: Question | A | B | C | D | Answer
+            </p>
+          </div>
+        </div>
 
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ backgroundColor: 'var(--bg-color)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', position: 'relative' }}>

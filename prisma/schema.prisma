@@ -19,6 +19,7 @@ model Test {
   description     String     @default("")
   category        String     @default("JKSSB")
   isFree          Boolean    @default(true)
+  isPublished     Boolean    @default(true)
   price           Int        @default(0)
   originalPrice   Int        @default(0)
   durationMinutes Int
