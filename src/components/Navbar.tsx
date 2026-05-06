@@ -12,12 +12,12 @@ export default function Navbar() {
         🎓 JKSSBMock Tests
       </Link>
       
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
         {status === 'loading' ? (
           <span style={{ color: 'var(--text-secondary)' }}>Loading...</span>
         ) : session ? (
           <>
-            <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+            <span style={{ fontWeight: 600, color: 'var(--text-main)', maxWidth: '100px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {session.user?.name || session.user?.email}
             </span>
             <button 

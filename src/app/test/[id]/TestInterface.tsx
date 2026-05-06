@@ -73,7 +73,7 @@ export default function TestInterface({ test }: { test: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--bg-color)' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+      <header className="test-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
         <h2 style={{ margin: 0, color: 'var(--primary)' }}>{test.title}</h2>
         <div className="test-header-controls" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: timeLeft <= 60 ? 'var(--accent)' : 'var(--text-main)' }}>
@@ -88,8 +88,8 @@ export default function TestInterface({ test }: { test: any }) {
       <div className="test-layout">
         {/* Main Content */}
         <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
-          <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className="card question-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="question-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0 }}>Question {currentQuestionIdx + 1} of {test.questions.length}</h3>
               <button onClick={toggleMarkForReview} className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>
                 {markedForReview.has(currentQuestionIdx) ? '★ Unmark' : '☆ Mark for Review'}
@@ -102,6 +102,7 @@ export default function TestInterface({ test }: { test: any }) {
               {question.options.map((opt: string, idx: number) => (
                 <label 
                   key={idx} 
+                  className="option-label"
                   style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -126,7 +127,7 @@ export default function TestInterface({ test }: { test: any }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="bottom-nav" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button 
                 className="btn btn-secondary" 
                 disabled={currentQuestionIdx === 0}
